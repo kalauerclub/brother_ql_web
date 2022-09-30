@@ -6,13 +6,11 @@ from brother_ql.devicedependent import label_type_specs, label_sizes
 from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 
 from . import bp
-from app.utils import convert_image_to_bw, pdffile_to_image, imgfile_to_image, image_to_png_bytes
+from app.utils import convert_image_to_grayscale, convert_image_to_bw, pdffile_to_image, imgfile_to_image, image_to_png_bytes
 from app import FONTS
 
 from .label import SimpleLabel, LabelContent, LabelOrientation, LabelType
 from .printer import PrinterQueue
-
-LINE_SPACINGS = (100, 150, 200, 250, 300)
 
 # Don't change as brother_ql is using this DPI value
 DEFAULT_DPI = 300
@@ -34,8 +32,9 @@ def index():
                            default_font_size=current_app.config['LABEL_DEFAULT_SIZE'],
                            default_orientation=current_app.config['LABEL_DEFAULT_ORIENTATION'],
                            default_qr_size=current_app.config['LABEL_DEFAULT_QR_SIZE'],
+                           default_image_mode=current_app.config['LABEL_DEFAULT_IMAGE_MODE'],
+                           default_bw_threshold=current_app.config['LABEL_DEFAULT_BW_THRESHOLD'],
                            default_font_family=current_app.config['LABEL_DEFAULT_FONT_FAMILY'],
-                           line_spacings=LINE_SPACINGS,
                            default_line_spacing=current_app.config['LABEL_DEFAULT_LINE_SPACING'],
                            default_dpi=DEFAULT_DPI
                            )
@@ -83,13 +82,13 @@ def print_text():
         printer = create_printer_from_request(request)
         label = create_label_from_request(request)
         print_count = int(request.values.get('print_count', 1))
-        cut_once = int(request.values.get('cut_once', 0)) == 1
+        cut_mode = request.values.get('cut_mode', 'cut')
     except Exception as e:
         return_dict['message'] = str(e)
         current_app.logger.error('Exception happened: %s', e)
         return return_dict
 
-    printer.add_label_to_queue(label, print_count, cut_once)
+    printer.add_label_to_queue(label, print_count, cut_mode)
 
     try:
         printer.process_queue()
@@ -116,8 +115,8 @@ def create_printer_from_request(request):
 
 
 def create_label_from_request(request):
-    d=request.values
-    context={
+    d = request.values
+    context = {
         'label_size': d.get('label_size', '62'),
         'print_type': d.get('print_type', 'text'),
         'label_orientation': d.get('orientation', 'standard'),
@@ -135,6 +134,13 @@ def create_label_from_request(request):
         'font_family': d.get('font_family'),
         'font_style': d.get('font_style'),
         'print_color': d.get('print_color', 'black'),
+
+        'margin': int(d.get('margin', 10)),
+        'orientation': d.get('orientation', 'standard'),
+        'image_mode': d.get('image_mode', "grayscale"),
+        'image_bw_threshold': int(d.get('image_bw_threshold', 70)),
+        'print_count': int(d.get('print_count', 1)),
+        'cut_mode': d.get('cut_mode', 'cut'),
     }
 
     def get_label_dimensions(label_size):
@@ -159,10 +165,16 @@ def create_label_from_request(request):
             name, ext = os.path.splitext(image.filename)
             if ext.lower() in ('.png', '.jpg', '.jpeg'):
                 image = imgfile_to_image(image)
-                return convert_image_to_bw(image, 200)
+                if context['image_mode'] == 'grayscale':
+                    return convert_image_to_grayscale(image)
+                else:
+                    return convert_image_to_bw(image, context['image_bw_threshold'])
             elif ext.lower() in ('.pdf'):
                 image = pdffile_to_image(image, DEFAULT_DPI)
-                return convert_image_to_bw(image, 200)
+                if context['image_mode'] == 'grayscale':
+                    return convert_image_to_grayscale(image)
+                else:
+                    return convert_image_to_bw(image, context['image_bw_threshold'])
             else:
                 return None
         except AttributeError:

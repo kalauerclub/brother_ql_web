@@ -1,4 +1,4 @@
-function formData(cut_once) {
+function formData(cut_mode) {
     var text = $('#labelText').val();
     if (text == '') text = ' ';
     return {
@@ -17,9 +17,11 @@ function formData(cut_once) {
         qrcode_size:   $('#qrCodeSize').val(),
         qrcode_correction: $('#qrCodeCorrection option:selected').val(),
         print_count:       $('#printCount').val(),
+        image_bw_threshold: $('#imageBwThreshold').val(),
+        image_mode:         $('input[name=imageMode]:checked').val(),
         print_color:       $('input[name=printColor]:checked').val(),
-        line_spacing:      $('input[name=lineSpacing]:checked').val(),
-        cut_once:          cut_once ? 1 : 0,
+        line_spacing:      $('#lineSpacing').val(),
+        cut_mode:           cut_mode,
     }
 }
 
@@ -113,13 +115,14 @@ function setStatus(data) {
     $('#dropdownPrintButton').prop('disabled', false);
 }
 
-function print(cut_once = false) {
+function print(cut_mode = 'cut') {
     $('#printButton').prop('disabled', true);
     $('#dropdownPrintButton').prop('disabled', true);
     $('#statusPanel').html('<div id="statusBox" class="alert alert-info" role="alert"><i class="fas fa-hourglass-half"></i><span>Processing print request...</span></div>');
 
     if($('input[name=printType]:checked').val() == 'image') {
         dropZoneMode = 'print';
+        dropCutMode = cut_mode;
         imageDropZone.processQueue();
         return;
     }
@@ -127,7 +130,7 @@ function print(cut_once = false) {
     $.ajax({
         type:     'POST',
         dataType: 'json',
-        data:     formData(cut_once),
+        data:     formData(cut_mode),
         url:      '{{url_for('.print_text')}}',
         success:  setStatus,
         error:    setStatus
@@ -139,6 +142,7 @@ preview()
 
 
 var imageDropZone;
+var dropCutMode;
 Dropzone.options.myAwesomeDropzone = {
     url: function() {
         if (dropZoneMode == 'preview') {
@@ -164,7 +168,7 @@ Dropzone.options.myAwesomeDropzone = {
 
     sending: function(file, xhr, data) {
         // append all parameters to the request
-        fd = formData(false);
+        fd = formData(dropCutMode);
 
         $.each(fd, function(key, value){
             data.append(key, value);

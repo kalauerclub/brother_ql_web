@@ -134,10 +134,22 @@ class SimpleLabel:
 
         if self._label_orientation == LabelOrientation.STANDARD:
             if self._label_type in (LabelType.ENDLESS_LABEL,):
-                height = img_height + textsize[1] + margin_top + margin_bottom
+                if self._label_content == LabelContent.IMAGE:
+                    scale = width/img_width
+                    #print("STANDARD")
+                    #print(scale)
+                    height = int(img_height*scale)
+                else:
+                    height = img_height + textsize[1] + margin_top + margin_bottom
         elif self._label_orientation == LabelOrientation.ROTATED:
             if self._label_type in (LabelType.ENDLESS_LABEL,):
-                width = img_width + textsize[0] + margin_left + margin_right
+                if self._label_content == LabelContent.IMAGE:
+                    scale = height/img_height
+                    #print("ROTATED")
+                    #print(scale)
+                    width = int(img_width*scale)
+                else:
+                    width = img_width+textsize[0]+margin_left+margin_right
 
         if self._label_orientation == LabelOrientation.STANDARD:
             if self._label_type in (LabelType.DIE_CUT_LABEL, LabelType.ROUND_DIE_CUT_LABEL):
@@ -167,8 +179,11 @@ class SimpleLabel:
 
         imgResult = Image.new('RGB', (width, height), 'white')
 
-        if img is not None:
+        if self._label_content in (LabelContent.QRCODE_ONLY, LabelContent.TEXT_QRCODE):
             imgResult.paste(img, image_offset)
+        elif self._label_content == LabelContent.IMAGE:
+            #print((width, height))
+            imgResult.paste(img.resize((width, height)))
 
         if self._label_content in (LabelContent.TEXT_ONLY, LabelContent.TEXT_QRCODE):
             draw = ImageDraw.Draw(imgResult)

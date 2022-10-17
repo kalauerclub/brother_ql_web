@@ -19,8 +19,11 @@ function formData(cut_mode) {
         print_count:       $('#printCount').val(),
         image_bw_threshold: $('#imageBwThreshold').val(),
         image_mode:         $('input[name=imageMode]:checked').val(),
+        {% if red_support %}
         print_color:       $('input[name=printColor]:checked').val(),
+        {% endif %}
         line_spacing:      $('#lineSpacing').val(),
+        shrink_or_wrap: $('input[name=shrink_or_wrap]:checked').val(),
         cut_mode:           cut_mode,
     }
 }
@@ -72,12 +75,22 @@ function preview() {
         $('.marginsLeftRight').prop('disabled', false).removeAttr('title');
     }
 
+    {% if red_support %}
     if ($('#labelSize option:selected').val().includes('red')) {
         $('#print_color_black').removeClass('disabled');
         $('#print_color_red').removeClass('disabled');
     } else {
         $('#print_color_black').addClass('disabled').prop('active', true);
         $('#print_color_red').addClass('disabled');
+    }
+    {% endif %}
+
+    if ($('input[name=orientation]:checked').val().includes('standard')) {
+        $('#shrink_or_wrap_wrap').removeClass('disabled');
+        $('#shrink_or_wrap_shrink').removeClass('disabled');
+    } else {
+        $('#shrink_or_wrap_wrap').addClass('disabled');
+        $('#shrink_or_wrap_shrink').addClass('disabled');
     }
 
     if($('input[name=printType]:checked').val() == 'image') {

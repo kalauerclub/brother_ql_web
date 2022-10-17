@@ -2,7 +2,7 @@ import os
 
 from flask import current_app, render_template, request, make_response
 
-from brother_ql.devicedependent import label_type_specs, label_sizes
+from brother_ql.devicedependent import label_type_specs, label_sizes, two_color_support
 from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 
 from . import bp
@@ -22,14 +22,15 @@ LABEL_SIZES = [(
         ROUND_DIE_CUT_LABEL,))  # True if round label
 ) for name in label_sizes]
 
-
 @bp.route('/')
 def index():
+    RED_SUPPORT = current_app.config['PRINTER_MODEL'] in two_color_support
     return render_template('labeldesigner.html',
                            font_family_names=FONTS.fontlist(),
                            label_sizes=LABEL_SIZES,
+                           red_support=RED_SUPPORT,
                            default_label_size=current_app.config['LABEL_DEFAULT_SIZE'],
-                           default_font_size=current_app.config['LABEL_DEFAULT_SIZE'],
+                           default_font_size=current_app.config['LABEL_DEFAULT_FONT_SIZE'],
                            default_orientation=current_app.config['LABEL_DEFAULT_ORIENTATION'],
                            default_qr_size=current_app.config['LABEL_DEFAULT_QR_SIZE'],
                            default_image_mode=current_app.config['LABEL_DEFAULT_IMAGE_MODE'],
@@ -130,6 +131,7 @@ def create_label_from_request(request):
         'qrcode_size': int(d.get('qrcode_size', 10)),
         'qrcode_correction': d.get('qrcode_correction', 'L'),
         'font_size': int(d.get('font_size', 100)),
+        'shrink_or_wrap': d.get('shrink_or_wrap', 'wrap'),
         'line_spacing': int(d.get('line_spacing', 100)),
         'font_family': d.get('font_family'),
         'font_style': d.get('font_style'),
@@ -229,5 +231,6 @@ def create_label_from_request(request):
         image=get_uploaded_image(request.files.get('image', None)),
         font_path=get_font_path(context['font_family'], context['font_style']),
         font_size=context['font_size'],
-        line_spacing=context['line_spacing']
+        line_spacing=context['line_spacing'],
+        shrink_or_wrap=context['shrink_or_wrap']
     )

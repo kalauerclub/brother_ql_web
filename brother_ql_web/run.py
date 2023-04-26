@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from app import create_app
+from brother_ql_web.app import create_app
 
 def main():
     app = create_app()

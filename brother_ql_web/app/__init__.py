@@ -12,7 +12,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 
 from . import fonts
-from config import Config
+from brother_ql_web.config import Config
 
 bootstrap = Bootstrap()
 
@@ -29,13 +29,13 @@ def create_app(config_class=Config):
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     bootstrap.init_app(app)
 
-    from app.main import bp as main_bp
+    from brother_ql_web.app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.labeldesigner import bp as labeldesigner_bp
+    from brother_ql_web.app.labeldesigner import bp as labeldesigner_bp
     app.register_blueprint(labeldesigner_bp, url_prefix='/labeldesigner')
 
-    from app.errors import bp as errors_bp
+    from brother_ql_web.app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
     return app

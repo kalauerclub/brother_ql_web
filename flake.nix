@@ -12,12 +12,26 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-        inherit (poetry2nix.legacyPackages.${system}) mkPoetryApplication;
+        inherit (poetry2nix.legacyPackages.${system}) mkPoetryApplication overrides;
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
         packages = {
-          myapp = mkPoetryApplication { projectDir = self; };
+          myapp = mkPoetryApplication {
+            projectDir = self;
+            overrides = overrides.withDefaults
+              (self: super: {
+                pillow = super.pillow.override {
+                  preferWheel = true;
+                };
+               flask-bootstrap4 = super.flask-bootstrap4.overridePythonAttrs
+                (
+                  old: {
+                    buildInputs = (old.buildInputs or [ ]) ++ [ super.setuptools ];
+                  }
+                );
+              });
+          };
           default = self.packages.${system}.myapp;
         };
 

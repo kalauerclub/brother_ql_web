@@ -6,8 +6,8 @@ from brother_ql.devicedependent import label_type_specs, label_sizes, two_color_
 from brother_ql.devicedependent import ENDLESS_LABEL, DIE_CUT_LABEL, ROUND_DIE_CUT_LABEL
 
 from . import bp
-from app.utils import convert_image_to_grayscale, convert_image_to_bw, pdffile_to_image, imgfile_to_image, image_to_png_bytes
-from app import FONTS
+from brother_ql_web.app.utils import convert_image_to_grayscale, convert_image_to_bw, pdffile_to_image, imgfile_to_image, image_to_png_bytes
+from brother_ql_web.app import FONTS
 
 from .label import SimpleLabel, LabelContent, LabelOrientation, LabelType
 from .printer import PrinterQueue

@@ -42,6 +42,12 @@ Build the venv and install the requirements:
     source /opt/brother_ql_web/.venv/bin/activate
     pip install -r requirements.txt
 
+#### NixOS
+
+```
+nix build
+```
+
 ### Configuration file
 
 Create a directory called 'instance', a file called 'application.py' and adjust the values to match your needs.

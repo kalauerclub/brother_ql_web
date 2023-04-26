@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "brother-ql-web"
+version = "1.0.0"
+description = "A Python-based web service to print labels on Brother QL label printers"
+authors = []
+license = "gpl3"
+readme = "README.md"
+packages = [{include = "brother_ql_web"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+brother-ql = "^0.9.4"
+Flask = "^2.3.1"
+Flask-Bootstrap4 = "^4.0.2"
+qrcode = "^7.4.2"
+pdf2image = "^1.16.3"
+
+[tool.poetry.scripts]
+my_package_cli = 'brother_ql_web.run:main'
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

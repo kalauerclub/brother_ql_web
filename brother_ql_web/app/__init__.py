@@ -19,8 +19,10 @@ bootstrap = Bootstrap()
 
 def create_app(config_class=Config):
     app = Flask(__name__, instance_relative_config=True)
+    app.config.from_prefixed_env()
     app.config.from_object(config_class)
     app.config.from_pyfile('application.py', silent=True)
+
 
     app.logger.setLevel(app.config['LOG_LEVEL'])
 

@@ -19,6 +19,7 @@
         packages = {
           myapp = mkPoetryApplication {
             projectDir = self;
+            propagatedBuildInputs = [ pkgs.fontconfig ];
             overrides = overrides.withDefaults
               (self: super: {
                 pillow = super.pillow.override {

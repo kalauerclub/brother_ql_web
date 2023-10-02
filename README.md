@@ -44,8 +44,14 @@ Build the venv and install the requirements:
 
 #### NixOS
 
+#### Build the software
 ```
 nix build
+```
+#### Build docker container
+```
+nix build '.#brother_ql_web-docker'
+docker load < result
 ```
 
 ### Configuration file

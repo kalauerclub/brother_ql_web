@@ -20,8 +20,28 @@
         packages = {
           brother_ql_web-docker = pkgs.dockerTools.buildImage {
             name = "brother_ql_web-docker";
+            copyToRoot = with pkgs.dockerTools; pkgs.buildEnv {
+              name = "image-root";
+              paths = with pkgs;[ binSh fontconfig
+              # the fonts which will be supported by the container, only ttf # and otf is supported.
+              # see https://search.nixos.org/packages?channel=unstable
+              unifont dejavu_fonts freefont_ttf terminus_font_ttf font-awesome
+              gyre-fonts liberation_ttf
+              ];
+              pathsToLink = [ "/bin" "/share" ];
+            };
+            runAsRoot = ''
+              install -m755 -d /usr
+              ln -nfs /share /usr/share
+            '';
+
+            tag = "latest";
             config = {
+              env = [ 
+                "PATH=/bin"
+              ];
               Cmd = [ "${inv_pkg}/bin/brother_ql_web" ];
+
             };
           };
           brother_ql_web = mkPoetryApplication {

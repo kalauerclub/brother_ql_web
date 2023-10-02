@@ -14,10 +14,17 @@
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
         inherit (poetry2nix.legacyPackages.${system}) mkPoetryApplication overrides;
         pkgs = nixpkgs.legacyPackages.${system};
+        inv_pkg = self.packages."${system}".brother_ql_web;
       in
       {
         packages = {
-          myapp = mkPoetryApplication {
+          brother_ql_web-docker = pkgs.dockerTools.buildImage {
+            name = "brother_ql_web-docker";
+            config = {
+              Cmd = [ "${inv_pkg}/bin/brother_ql_web" ];
+            };
+          };
+          brother_ql_web = mkPoetryApplication {
             projectDir = self;
             propagatedBuildInputs = [ pkgs.fontconfig ];
             overrides = overrides.withDefaults
@@ -33,7 +40,7 @@
                 );
               });
           };
-          default = self.packages.${system}.myapp;
+          default = inv_pkg;
         };
 
         devShells.default = pkgs.mkShell {

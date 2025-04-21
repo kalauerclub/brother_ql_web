@@ -54,6 +54,8 @@ nix build '.#brother_ql_web-docker'
 docker load < result
 ```
 
+The latest docker image is uploaded and available at `makefoo/brother_ql_web:latest`
+
 ### Configuration file
 
 Create a directory called 'instance', a file called 'application.py' and adjust the values to match your needs.
@@ -62,6 +64,7 @@ Create a directory called 'instance', a file called 'application.py' and adjust 
     touch /opt/brother_ql_web/instance/application.py
 
 E.g.
+
     """
     User specific application settings
     """
@@ -72,6 +75,11 @@ E.g.
 ### Startup
 
 To start the server, run `./run.py`.
+
+#### Container startup
+```
+docker run -p 8013:8013 makefoo/brother_ql_web:latest
+```
 
 ### Automatic startup using systemd service
 

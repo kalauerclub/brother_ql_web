@@ -19,7 +19,7 @@
       {
         packages = {
           brother_ql_web-docker = pkgs.dockerTools.buildImage {
-            name = "brother_ql_web-docker";
+            name = "brother_ql_web";
             copyToRoot = with pkgs.dockerTools; pkgs.buildEnv {
               name = "image-root";
               paths = with pkgs;[ binSh fontconfig
@@ -45,7 +45,7 @@
             };
           };
           brother_ql_web = mkPoetryApplication {
-            projectDir = self;
+            projectDir = ./.;
             propagatedBuildInputs = [ pkgs.fontconfig ];
             overrides = overrides.withDefaults
               (self: super: {
